@@ -1,7 +1,7 @@
 import random
 from django.shortcuts import render
-from .models import Account, UserImports
-from .serializers import CustomTokenObtainPairSerializer, CustomRegistrationSerializer, ForgotPasswordSerializer,EnterNewPasswordSerializer, UserImportsSerializer
+from .models import Account, UserImports, UserIntegration
+from .serializers import CustomTokenObtainPairSerializer, CustomRegistrationSerializer, ForgotPasswordSerializer,EnterNewPasswordSerializer, UserImportsSerializer, UserIntegrationSerializer
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics
@@ -75,6 +75,14 @@ class UserEnterNewPasswordView(APIView):
 class UserImportsCreateApiView(generics.CreateAPIView):
     queryset = UserImports.objects.all()
     serializer_class = UserImportsSerializer
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class UserImportsListApiView(generics.ListAPIView):
     queryset = UserImports.objects.all()
@@ -83,13 +91,25 @@ class UserImportsListApiView(generics.ListAPIView):
     
     def get_queryset(self):
         user = self.request.user
-        return super().get_queryset(user=user)
+        
+        return super().get_queryset().filter(user=user, is_file=True)
 
 
-class UserImportsRetrieveApiView(generics.RetrieveAPIView):
+
+class UserCreationsListApiView(generics.ListAPIView):
     queryset = UserImports.objects.all()
     serializer_class = UserImportsSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        return super().get_queryset().filter( is_file=False, user=user)
+
+
+class UserImportsRetrieveApiView(generics.RetrieveAPIView):
+    queryset = UserImports.objects.filter(is_file=True)
+    serializer_class = UserImportsSerializer
+    # permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
@@ -99,3 +119,21 @@ class UserImportsDeleteApiView(generics.UpdateAPIView):
     queryset = UserImports.objects.all()
     serializer_class = UserImportsSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    
+
+class UserIntegrationCreateApiView(generics.CreateAPIView):
+    queryset = UserIntegration.objects.all()
+    serializer_class = UserIntegrationSerializer
+    
+
+class UserIntegrationRetrieveApiView(generics.RetrieveAPIView):
+    queryset = UserIntegration.objects.all()
+    serializer_class = UserIntegrationSerializer
+    
+    
+    def retrieve(self, request, *args, **kwargs):
+        pk = self.kwargs['pk']
+        instance = self.queryset.get(user=pk)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

@@ -5,14 +5,16 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from accounts.models import Account, UserImports
+from accounts.models import Account, UserImports, UserIntegration
 from accounts.parsers.parser_factory import ParserFactory
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         refresh = self.get_token(self.user)
         data["access"] = str(refresh.access_token)
         data["email"] = self.user.email
+        data['user'] = self.user.id
 
         return data
 
@@ -76,11 +78,13 @@ class UserImportsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserImports
-        fields = ["id", "user", "title", "content", "file", "is_deleted", "date_created", "last_updated"]
+        fields = ["id", "user", "title", "content","content2" ,"file", "is_file","is_deleted", "date_created", "last_updated"]
         
         
     def create(self, validated_data):
         instance = super().create(validated_data)
+        if not instance.is_file:
+            return instance
         file_path = instance.file.path
         parser = ParserFactory.get_parser(file_path=file_path)
         title, content = parser.parse(file_path=file_path)
@@ -89,3 +93,8 @@ class UserImportsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance 
         
+        
+class UserIntegrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserIntegration
+        fields = ['id', 'user', 'app_name', 'token']

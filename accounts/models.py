@@ -60,14 +60,24 @@ class UserImports(models.Model):
     user = models.ForeignKey('accounts.Account', on_delete=models.SET_NULL, blank=True, null=True, related_name="user_imports")
     title = models.CharField(max_length=500, null=True, blank=True)
     content = CKEditor5Field('content', config_name='extends', null=True, blank=True)
+    content2 = CKEditor5Field('content', config_name='extends', null=True, blank=True)
     
-    file = models.FileField(validators=[validate_file_extension])
+    file = models.FileField(validators=[validate_file_extension], null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
+    is_file = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.id)
+    
+    
+class UserIntegration(models.Model):
+    user = models.ForeignKey('accounts.Account', on_delete=models.SET_NULL, blank=True, null=True, related_name="user_integration")
+    app_name = models.CharField(max_length=500, null=True, blank=True)
+    token = models.CharField(max_length=1000)
+    
+    
 
 
 
