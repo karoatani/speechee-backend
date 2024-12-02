@@ -97,4 +97,4 @@ class UserImportsSerializer(serializers.ModelSerializer):
 class UserIntegrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserIntegration
-        fields = ['id', 'user', 'app_name', 'token']
+        fields = ['id', 'user', 'app_name', 'token', 'pub_id']

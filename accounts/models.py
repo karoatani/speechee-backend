@@ -76,6 +76,8 @@ class UserIntegration(models.Model):
     user = models.ForeignKey('accounts.Account', on_delete=models.SET_NULL, blank=True, null=True, related_name="user_integration")
     app_name = models.CharField(max_length=500, null=True, blank=True)
     token = models.CharField(max_length=1000)
+    pub_id = models.CharField(max_length=1000, null=True, blank=True)
+    
     
     
 
