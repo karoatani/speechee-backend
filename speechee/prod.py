@@ -14,3 +14,5 @@ DATABASES = {
         conn_health_checks=True,
     ),
 }
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

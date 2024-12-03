@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     "corsheaders",
     'django_ckeditor_5',
+     "whitenoise.runserver_nostatic",
      
     
 ]
